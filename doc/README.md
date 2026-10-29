@@ -1,4 +1,8 @@
-# 架构方案与开发记录
+# Lab1 Phase 1：SVG 编辑器（CLI）实验报告
+
+**Git 仓库地址**：[https://github.com/Canberra1111/svg-editor](https://github.com/Canberra1111/svg-editor)
+
+**最终提交版本**：[final 标签](https://github.com/Canberra1111/svg-editor/tree/final)
 
 ## 架构方案
 
@@ -13,9 +17,9 @@
 | `src/main.ts` | 装配对象及启动程序 | 上述模块 |
 | `test/` | 验收与错误路径验证 | 被测模块、Node 测试 API |
 
-![PlantUML 组件图](architecture.svg)
+![PlantUML 组件图](https://raw.githubusercontent.com/Canberra1111/svg-editor/final/doc/architecture.svg)
 
-组件图的 PlantUML 源文件为 [architecture.puml](architecture.puml)，渲染结果保存在本目录，无须外部图片服务即可查看。领域模型不得读取文件或打印输出；应用层通过端口访问存储，不能导入基础设施。唯一的装配点在 main。
+组件图的 PlantUML 源文件为 [architecture.puml](https://github.com/Canberra1111/svg-editor/blob/final/doc/architecture.puml)，图与源文件均随仓库保存。以上链接指向 final 版本，单独上传本 README.md 时也能访问架构图；离线时可直接打开工程中的 `doc/architecture.svg`。领域模型不得读取文件或打印输出；应用层通过端口访问存储，不能导入基础设施。唯一的装配点在 main。
 
 ### 设计模式的选择
 
@@ -116,4 +120,4 @@
 - 无参数 save 使用 read 建立的路径；显式另存不替换该路径。init 后首次保存须给路径，并以其建立默认保存路径；失败的 read/save 不改变路径。
 - 不实现后续 box/插件。SVG 导入支持所列六类与数值/px、translate/正数等比 scale；path、tspan、defs、样式表等未列类型报错。复杂 CSS 及缺省字体/描边在变换下的完整视觉等价不作保证；不声称支持整个 SVG 标准。
 - 快照实现按文档大小复制，优先保证错误原子性；大文档的内存和撤销性能尚未做压力优化。
-- 原文没有截止日期，无法验证 final tag 是否早于课程截止时间。作业报告与代码一同提交到远程仓库，提交用的文档以 final 标签所指版本为准。
+- 作业报告与代码一同提交到远程仓库，提交用的文档以 final 标签所指版本为准。课程平台上传一份文件名为 README.md 的报告，正文包含 Git 仓库地址。
