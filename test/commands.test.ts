@@ -100,3 +100,11 @@ test('tree includes inline geometry; subtree and show identify parents and text'
   assert.equal(h.run('show t')[0], 'text#t  parent=g#node');
   assert.ok(h.run('show t').includes('  text="hello world"'));
 });
+
+test('save without arguments keeps the read path after saving a separate copy', () => {
+  const h = new EditorHarness();
+  h.setup(['init', 'create rect r 1 2 3 4', 'save original.svg', 'read original.svg', 'move r 10 0', 'save copy.svg', 'move r 20 0', 'save', 'read original.svg']);
+  assert.equal(h.document().require('r').attributes().get('x'), '31');
+  h.setup(['read copy.svg']);
+  assert.equal(h.document().require('r').attributes().get('x'), '11');
+});

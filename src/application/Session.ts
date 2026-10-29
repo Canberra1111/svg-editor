@@ -23,7 +23,8 @@ export class Session {
     const target = path ?? this.pathValue;
     if (!target) throw new EditorError('no file path. use save <file.svg>');
     this.storage.write(target, document);
-    this.pathValue = target;
+    // Explicit Save As must not replace the path established by read.
+    this.pathValue ??= target;
     this.history.lock();
     return [`saved to ${target} (${document.allShapes().length} elements)`];
   }
