@@ -20,6 +20,12 @@ export abstract class Shape {
   get tag(): string { return this.tagValue; }
   get parent(): Group | null { return this.parentValue; }
   label(): string { return `${this.tag}#${this.id}`; }
+  moveFeedback(dx: number, dy: number): string {
+    const position = [...this.geometry.values()].slice(0, 2);
+    return position.length === 2
+      ? `${this.label()} moved to (${position.map(value => Values.format(value)).join(',')})`
+      : `${this.label()} moved by (${Values.format(dx)},${Values.format(dy)})`;
+  }
   attach(parent: Group | null): void { this.parentValue = parent; }
   children(): readonly Shape[] { return []; }
   textContent(): string | null { return null; }
