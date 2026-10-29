@@ -1,0 +1,18 @@
+@startuml
+title Lab1 Phase 1 SVG Editor
+skinparam componentStyle rectangle
+component "main (composition root)" as main
+component "cli\nTokenizer / Terminal" as cli
+component "application\nCommands / Session / History" as app
+interface "DocumentStore" as port
+component "domain\nShape / Group / SvgDocument" as domain
+component "infrastructure\nFileDocumentStore / SvgCodec" as infra
+main --> cli
+main --> app
+main --> infra
+cli --> app
+app --> domain
+app --> port
+infra ..|> port
+infra --> domain
+@enduml
