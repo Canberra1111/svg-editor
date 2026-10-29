@@ -30,6 +30,7 @@ export abstract class Shape {
   children(): readonly Shape[] { return []; }
   textContent(): string | null { return null; }
   isContainer(): boolean { return false; }
+  isGeometryAttribute(name: string): boolean { return this.geometry.has(name); }
   asGroup(): Group { throw new EditorError(`not a container: ${this.id}`); }
   find(id: string): Shape | null { return this.id === id ? this : null; }
   contains(shape: Shape): boolean { return this === shape; }
@@ -51,6 +52,7 @@ export abstract class Shape {
     if (['fill', 'stroke', 'stroke-width'].includes(name)) {
       if (name === 'stroke-width') Values.nonnegative(value, name);
       if (!value) throw new EditorError(`empty value for ${name}`);
+      this.removeStyleOverride(name);
       this.presentation.set(name, value);
       return;
     }
@@ -95,6 +97,14 @@ export abstract class Shape {
 
   private validateGeometry(name: string, value: string | number): number {
     return this.nonnegative.has(name) ? Values.nonnegative(value, name) : Values.number(value, name);
+  }
+
+  private removeStyleOverride(name: string): void {
+    const style = this.imported.get('style');
+    if (!style) return;
+    const remaining = style.split(';').filter(declaration => declaration.split(':', 1)[0]?.trim() !== name).join(';');
+    if (remaining.trim()) this.imported.set('style', remaining);
+    else this.imported.delete('style');
   }
 
   abstract move(dx: number, dy: number): void;

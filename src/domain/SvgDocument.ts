@@ -42,7 +42,7 @@ export class SvgDocument {
   }
   assertAvailable(id: string): void {
     Values.id(id);
-    if (this.find(id)) throw new EditorError(`id already exists: ${id}`);
+    if (this.find(id) || this.rootAttributes.get('id') === id) throw new EditorError(`id already exists: ${id}`);
   }
   add(shape: Shape, containerId?: string): void {
     const parent = containerId === undefined ? this.root : this.container(containerId);
