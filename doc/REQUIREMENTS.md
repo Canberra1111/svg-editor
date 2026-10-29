@@ -2,22 +2,22 @@
 
 依据用户提供的 Lab1 Phase 1 作业文本。这里的状态随实际实现与测试更新，不替代原作业。
 
-| 原文位置 | 要求 | 初始状态 |
+| 原文位置 | 要求 | 验收状态 |
 | --- | --- | --- |
-| 1.1 | Git 分步提交、远程仓库、最终 final tag | 本地开始；远程仓库待提供 |
-| 1.2 | doc/README.md 四节 + PlantUML 架构图 | 设计已建立，验证部分待完成 |
-| 2 | svg>、整行注释、唯一且大小写敏感 id、缺 id 自动补全并警告 | 待实现 |
-| 2 | 浮点坐标、引号参数、error:、错误不改变状态、成功反馈 | 待实现 |
-| 2.1 | TypeScript、封装/多态/一类一文件、Command、Composite | 设计已建立 |
-| 2.1 | 两处名字分派并标注待重构 | 设计已建立 |
-| 3 | init/read/save/canvas | 待实现 |
-| 3 | create/delete/move/scale/set/group/ungroup/addto/front/back | 待实现 |
-| 3、5 | tree/show/help | 待实现 |
-| 3、4.3 | undo/redo，分支清空 redo，文档操作锁定历史 | 待实现 |
-| 4.1 | 六类参数、in 父容器、fill/stroke 默认不写、set 白名单 | 待实现 |
-| 4.2 | 约定错误文本、循环分组拒绝、顶层 ungroup 拒绝 | 待实现 |
-| 4.4 | box/插件不在 Phase 1；create box 报错 | 范围已确认 |
-| 6、6.1 A | 基础会话、两节点流程图 | 待验收 |
+| 1.1 | Git 分步提交、远程仓库、最终 final tag | 本地按阶段提交，final 标签指向最终验收提交；远程已配置为 Canberra1111/svg-editor，截至本地验收时推送待 GitHub 授权 |
+| 1.2 | doc/README.md 四节 + PlantUML 架构图 | 已完成，含 puml 源码及本地 SVG 图片 |
+| 2 | svg>、整行注释、唯一且大小写敏感 id、缺 id 自动补全并警告 | 已通过命令、SVG 及终端验收 |
+| 2 | 浮点坐标、引号参数、error:、错误不改变状态、成功反馈 | 已通过；递归溢出及文件操作失败也保持状态 |
+| 2.1 | TypeScript、封装/多态/一类一文件、Command、Composite | 已实现；AST 架构检查通过 |
+| 2.1 | 两处名字分派并标注待重构 | CommandRegistry / ShapeFactory，均已标注 |
+| 3 | init/read/save/canvas | 已通过，包括成功后历史锁定、失败保持历史和路径 |
+| 3 | create/delete/move/scale/set/group/ungroup/addto/front/back | 已实现并验证 |
+| 3、5 | tree/show/help | 已通过；tree 含内联几何，show 含父节点和属性 |
+| 3、4.3 | undo/redo，分支清空 redo，文档操作锁定历史 | 已通过；显示类及 canvas 查询不进入历史 |
+| 4.1 | 六类参数、in 父容器、fill/stroke 默认不写、set 白名单 | 已通过 |
+| 4.2 | 约定错误文本、循环分组拒绝、顶层 ungroup 拒绝 | Phase 1 适用项已实现；复合 box 的 ungroup 属后续阶段 |
+| 4.4 | box/插件不在 Phase 1；create box 报错 | 已通过 unknown shape type 验证 |
+| 6、6.1 A | 基础会话、两节点流程图 | CLI 脚本及子进程测试已验证；版本 A 保存 8 个元素 |
 
 原文中存在需要明确实现口径的地方：
 

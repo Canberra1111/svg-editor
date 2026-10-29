@@ -13,7 +13,9 @@
 | `src/main.ts` | 装配对象及启动程序 | 上述模块 |
 | `test/` | 验收与错误路径验证 | 被测模块、Node 测试 API |
 
-组件图的 PlantUML 源文件为 `architecture.puml`。领域模型不得读取文件或打印输出；应用层通过端口访问存储，不能导入基础设施。唯一的装配点在 main。
+![PlantUML 组件图](architecture.svg)
+
+组件图的 PlantUML 源文件为 [architecture.puml](architecture.puml)，渲染结果保存在本目录，无须外部图片服务即可查看。领域模型不得读取文件或打印输出；应用层通过端口访问存储，不能导入基础设施。唯一的装配点在 main。
 
 ### 设计模式的选择
 
@@ -48,11 +50,51 @@
 9. IO 验收时发现 XML 库会保留未声明实体、丢弃非法零字符引用，且默认不解码合法数字字符引用。增加 XML 1.0 字符/实体校验，并配置数字引用解码；CDATA 和注释中的实体文本保持字面含义。相关回归测试已通过。
 10. 发现导入的 `style="fill:red"` 会覆盖后续 set fill 设置的 presentation attribute；set 时清除 style 中同名声明，同时保留其他声明，增加回归测试。
 11. 真实 CLI、文件原子保存及架构依赖检查合计 24 项测试全部通过。保存采用同目录临时文件 + rename；也验证了临时文件已写好但 rename 失败时会清理临时文件。
+12. 在真实终端确认 svg> 提示符、逐行反馈及 Ctrl+D 退出；通过 npm run cli 运行作业 6.1 版本 A，生成含 8 个图形元素的 flowchart.svg。
+13. Git 按“架构 → 图形模型 → 命令与历史 → SVG IO 与终端 → 文档验收”真实分步记录。没有把同一份完成品事后拆成虚假的开发历史。当前提交作者采用仓库局部的 SVG Editor Project 标识，不伪称这些修改由学生独立完成。
+14. 最终对照原文发现，save 无参数明确指向 read 时的路径。初版显式另存会替换默认路径，与此不符；已改为另存不改已有默认路径，并增加 original.svg / copy.svg 的独立内容验证。
+15. 修正保存语义后，严格编译和 25 项测试全部通过。架构图用 PlantUML 官方 JavaScript 引擎在本地渲染，检查过 SVG 的 XML 有效性及实际图片显示；流程图保存结果也已渲染检查。
 
 ## 一致性自查
 
-初始设计阶段，待实现后按实际目录和 import 依赖检查并更新。
+### 模块划分
+
+实际目录与方案一致。Shape、Rect、Circle、Ellipse、Line、Text、Group、SvgDocument 均有封装状态和领域行为；一个类对应一个同名文件。命令各有具体类，继承 EditCommand 的事务和历史协议，不在过程式函数中按 tag 分派操作。
+
+### 依赖方向
+
+`test/architecture.test.ts` 使用 TypeScript AST 检查全部生产源码：
+
+- domain 只依赖 domain，无 Node 文件系统和外部 XML 库。
+- application 只依赖 application/domain；DocumentStore 和 ShapeReaderFactory 是边界端口。
+- infrastructure 只能以 type import 依赖应用端口，通过接口接受工厂和文档存储协议。
+- cli 只依赖 cli/application 及 Node 终端 API。
+- main 是跨模块对象装配的唯一入口。
+- 每文件至多一个类，类名匹配文件名，无生产层自由函数声明。
+
+检查已通过。设计中的两处名字分派都已在源码和本方案标注为后续插件阶段的待重构点；本阶段没有新增第三处图形类型或命令名分派入口。
 
 ## 质量保证手段
 
-计划覆盖：规定命令、六类图形、递归容器、跨容器操作、错误不改变状态、undo/redo 分支、SVG 读回与缺 id 补全，以及真实 CLI 脚本。最终通过的命令和结果在完成验证后记录。
+在 Node.js 24.15.0、TypeScript 5.9.3 环境执行 `npm test`，严格编译及 **25 项测试全部通过**。
+
+| 验证文件 | 核心验证内容 |
+| --- | --- |
+| `test/domain.test.ts` | 六类图形、递归几何、深拷贝、分组原顺序、循环拒绝、唯一 id 和几何约束 |
+| `test/commands.test.ts` | 全部命令、引号/颜色/注释、容器变更、undo/redo、IO 后历史锁定、错误原子性与 redo 保留 |
+| `test/svg.test.ts` | 作业外部文件、自动 id 避让、嵌套/文本/CDATA/XML 转义往返、变换、非法输入拒绝、样式覆盖、真实文件及失败清理 |
+| `test/cli.test.ts` | 子进程实际运行程序、作业流程图保存读回、错误 stderr 单行输出及继续处理后续输入 |
+| `test/architecture.test.ts` | AST 检查模块依赖、一类一文件、无生产自由函数声明 |
+
+此外实际运行了 `npm run cli < examples/flowchart.cli`；交互终端中执行 init/create/move/undo/show 并检查恢复的位置。所有测试临时文件使用独立临时目录并清理。
+
+### 实现口径与限制
+
+- `ungroup` 拒绝顶层容器，遵从 4.2 节更具体的错误表。嵌套容器解散后，子节点占据原容器位置。
+- 跨容器 group 挂在选中元素的最近公共父容器，孩子按原文档顺序排列；原文没有规定跨父级分组的新容器位置，因此选择这一确定性口径。
+- g 的 set 通用样式写到 g 上，按 SVG 继承生效；不会覆盖子节点已有的显式样式。text 内容仅 text 元素可 set。
+- init 省略尺寸时使用 800×600；仅给一个宽度时高度取 600。canvas 只给宽度时保留当前高度。
+- 无参数 save 使用 read 建立的路径；显式另存不替换该路径。init 后首次保存须给路径，并以其建立默认保存路径；失败的 read/save 不改变路径。
+- 不实现后续 box/插件。SVG 导入支持所列六类与数值/px、translate/正数等比 scale；path、tspan、defs、样式表等未列类型报错。复杂 CSS 及缺省字体/描边在变换下的完整视觉等价不作保证；不声称支持整个 SVG 标准。
+- 快照实现按文档大小复制，优先保证错误原子性；大文档的内存和撤销性能尚未做压力优化。
+- 原文没有截止日期，无法验证 final tag 是否早于课程截止时间。远程推送须在 GitHub 登录就绪后完成，不能把本地提交误报为已上传。
